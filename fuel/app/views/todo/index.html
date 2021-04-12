@@ -1,0 +1,263 @@
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+  <style>
+
+body {
+  margin: 0;
+  min-width: 250px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.header {
+  background-color: blue;
+  padding: 30px 40px;
+  color: white;
+  text-align: center;
+}
+
+.header:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+input {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  width: 75%;
+  padding: 10px;
+  float: left;
+  font-size: 16px;
+}
+.addBtn {
+  padding: 10px;
+  width: 20%;
+  background: #d9d9d9;
+  color: #555;
+  float: left;
+  text-align: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  border-radius: 0;
+  height: 40px;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+ul li {
+  cursor: pointer;
+  position: relative;
+  padding: 12px 8px 12px 40px;
+  list-style-type: none;
+  background: #eee;
+  font-size: 18px;
+  transition: 0.2s;
+  
+ 
+}
+
+ul li.checked {
+  background: #888;
+  color: #fff;
+}
+
+ul li.checked::before {
+  content: '';
+  position: absolute;
+  border-color: #fff;
+  border-style: solid;
+  border-width: 0 2px 2px 0;
+  top: 10px;
+  left: 16px;
+  transform: rotate(45deg);
+  height: 15px;
+  width: 7px;
+}
+
+.closebtn {
+  margin-left: 15px;
+  color:red;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+
+
+  </style>
+ 
+
+</head>
+<body>
+
+    <div id="myDIV" class="header">
+        <h2 style="margin:5px">Simple To Do List</h2>
+        <input type="text" id="task" placeholder="Title...">
+        
+        <button type="button" class="addBtn"onclick="addButton()" id="addBtn" value="Add" >Add</button>
+
+    </div>
+
+      <ul id="item">
+        
+       </ul>
+
+       <script type="text/javascript">
+
+
+
+function addButton(){
+  var title = document.getElementById('task').value;
+    var status = 0;
+
+        data = {
+            
+                "title": title,
+                "status": status,
+              
+            
+            
+            };
+
+            if(title===""){
+                alert("please fill out the field")
+            }
+            else{
+
+            $.ajax({
+            url:"/test/add",
+            method:"POST",
+            data:data,
+            success:function(data,status)
+            {
+                    
+               
+              document.getElementById("item").innerHTML += `<li id="todo-${data[2]['id']}" class= "${data[2]['status']}==1?"checked":""}" >
+              <span class="closebtn" onclick="onDelete(${data[2]['id']})">&times;</span>
+             
+              <span  onclick="onEdit(${data[2]['id']})"> ${title}</span>
+              </li>`;
+          
+                resetForm();
+
+                 },
+
+            error:function(errormessage){
+                alert(errormessage.responseText);
+            }
+        });
+     }
+  }
+
+  function resetForm(){
+     
+     document.getElementById('task').value = "";
+    
+
+    }
+    
+
+           
+function onEdit(id){
+  
+ 
+  document.getElementById("todo-"+id).classList.toggle('checked');
+
+    
+    
+    
+    
+ 
+  
+   $.ajax({
+    url:"/test/edit/"+id,
+    method:"POST",
+    
+    success:function(data)
+    {
+        
+   
+        
+
+        
+    //  fetch_data();
+     
+    },
+   });
+  }
+
+function onDelete(id){
+
+  console.log("clicked delete");
+  $.ajax({
+    url:"/test/delete/"+id,
+    method:"POST",
+    
+    success:function(data)
+    {
+        
+   
+        
+      document.getElementById("todo-"+id).remove();
+
+       
+    //  fetch_data();
+     
+    },
+   });
+}
+
+  $(document).ready(function(){
+  
+    fetch_data();
+  
+    function fetch_data()
+    {
+    $.ajax({
+      url:"/test/index",
+      success:function(data)
+      {
+      //    console.log(data[2]['status']);
+          
+          for(i in data){
+          //   console.log(data);
+
+           
+            
+               document.getElementById("item").innerHTML += `<li id="todo-${data[i]['id']}" class= "${data[i]['status']==1?"checked":""}" >
+              <span class="closebtn" onclick="onDelete(${data[i]['id']})">&times;</span>
+             
+              <span  onclick="onEdit(${data[i]['id']})"> ${data[i]['title']}</span>
+              </li>`;
+            
+
+            
+                }
+
+                
+
+
+      
+        }
+    })
+    }
+
+  })
+        </script>
+      
+      
+</body>
+
+</html>
